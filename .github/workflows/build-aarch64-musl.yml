@@ -29,12 +29,15 @@ jobs:
         with:
           targets: aarch64-unknown-linux-musl
 
-      - name: Install musl cross tools
+      - name: Install musl cross toolchain
         run: |
-          sudo apt-get update
-          sudo apt-get install -y musl-tools gcc-aarch64-linux-gnu
-          # Use aarch64-linux-gnu-gcc as the musl linker
-          echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+          # Download prebuilt aarch64 musl cross toolchain from musl.cc
+          wget -q https://musl.cc/aarch64-linux-musl-cross.tgz
+          tar xzf aarch64-linux-musl-cross.tgz
+          echo "$PWD/aarch64-linux-musl-cross/bin" >> $GITHUB_PATH
+          echo "CC_aarch64_unknown_linux_musl=aarch64-linux-musl-gcc" >> $GITHUB_ENV
+          echo "AR_aarch64_unknown_linux_musl=aarch64-linux-musl-ar" >> $GITHUB_ENV
+          echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER=aarch64-linux-musl-gcc" >> $GITHUB_ENV
 
       - name: Build
         run: cargo build --release --target aarch64-unknown-linux-musl
@@ -55,7 +58,6 @@ jobs:
             rtk-aarch64-unknown-linux-musl.sha256
 
       - name: Create Release
-        id: create_release
         uses: softprops/action-gh-release@v2
         if: github.ref_type == 'tag'
         with:
