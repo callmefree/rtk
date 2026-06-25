@@ -20,24 +20,11 @@ jobs:
   build:
     name: Build aarch64-unknown-linux-musl
     runs-on: ubuntu-latest
+    container:
+      image: messense/rust-musl-cross:aarch64-musl
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: aarch64-unknown-linux-musl
-
-      - name: Install musl cross toolchain
-        run: |
-          # Download prebuilt aarch64 musl cross toolchain from musl.cc
-          wget -q https://musl.cc/aarch64-linux-musl-cross.tgz
-          tar xzf aarch64-linux-musl-cross.tgz
-          echo "$PWD/aarch64-linux-musl-cross/bin" >> $GITHUB_PATH
-          echo "CC_aarch64_unknown_linux_musl=aarch64-linux-musl-gcc" >> $GITHUB_ENV
-          echo "AR_aarch64_unknown_linux_musl=aarch64-linux-musl-ar" >> $GITHUB_ENV
-          echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER=aarch64-linux-musl-gcc" >> $GITHUB_ENV
 
       - name: Build
         run: cargo build --release --target aarch64-unknown-linux-musl
